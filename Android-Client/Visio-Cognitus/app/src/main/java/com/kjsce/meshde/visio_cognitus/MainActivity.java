@@ -8,12 +8,14 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -22,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int CAMERA_REQ = 8080;
     ImageView imview;
+    Bitmap captured;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +43,14 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             Socket s  = new Socket("192.168.100.5",8080);
                             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-                            dos.writeUTF("Yo Bruh");
+                            //String pic = getStringFromBitmap(captured);
+                            //dos.writeUTF(Integer.toString(pic.length()));
+                            byte[] pic = getByteArrayFromBitmap(captured);
+                            System.out.println(pic.length);
+                            dos.writeUTF(Integer.toString(pic.length));
+                            dos.flush();
+                            dos.write(pic,0,pic.length);
+                            dos.flush();
                             s.close();
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -66,9 +76,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int req,int res,Intent data){
         if(req == CAMERA_REQ && res == Activity.RESULT_OK){
             Bitmap photo = (Bitmap) data.getExtras().get("data");
+            captured = photo;
             imview.setImageBitmap(photo);
         }
 
+    }
+
+    protected String getStringFromBitmap(Bitmap img){
+        byte[] b = getByteArrayFromBitmap(img);
+        String encoded = Base64.encodeToString(b,Base64.DEFAULT);
+        return encoded;
+    }
+
+    protected byte[] getByteArrayFromBitmap(Bitmap img){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        img.compress(Bitmap.CompressFormat.JPEG,100,baos);
+        byte[] b = baos.toByteArray();
+        return b;
     }
 
     @Override
