@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run(){
                         try {
-                            Socket s  = new Socket("192.168.100.5",8080);
+                            Socket s  = new Socket("192.168.100.8",8080);
                             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
                             //String pic = getStringFromBitmap(captured);
                             //dos.writeUTF(Integer.toString(pic.length()));
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
     protected byte[] getByteArrayFromBitmap(Bitmap img){
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        img.compress(Bitmap.CompressFormat.JPEG,100,baos);
+        img.compress(Bitmap.CompressFormat.PNG,100,baos);
         byte[] b = baos.toByteArray();
         return b;
     }

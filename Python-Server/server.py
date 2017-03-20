@@ -1,9 +1,10 @@
 #!/bin/python
 
 import socket as s
-
+from helper import manipulate
+import random
 server = s.socket(s.AF_INET,s.SOCK_STREAM)
-server.bind(("192.168.100.5",8080))
+server.bind(("192.168.100.8",8080))
 server.listen(10)
 client,addr = server.accept()
 print "Connected to "+ str(addr)
@@ -15,6 +16,7 @@ print length
 #print type(length.decode('utf-8'))
 data = ''
 size = 0
+r = random.randint(1,10000)
 while size < int(length[2:]):
  rec = client.recv(39295)
  print size
@@ -22,7 +24,9 @@ while size < int(length[2:]):
  data += rec
 print len(data)
 #print "Recieved message: "+ str(data)
-with open('file2.jpg','wb') as f:
+with open('file{}.png'.format(r),'wb') as f:
  f.write(data)
+
+manipulate(r)
 
 
