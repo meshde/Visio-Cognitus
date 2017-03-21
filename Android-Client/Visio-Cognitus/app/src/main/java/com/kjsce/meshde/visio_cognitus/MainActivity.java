@@ -15,6 +15,7 @@ import android.util.Base64;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     ImageView imview;
     Bitmap captured;
     Bitmap newpic;
+    EditText ip;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,16 +39,18 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         imview = (ImageView) findViewById(R.id.img);
+        ip = (EditText) findViewById(R.id.iptxt);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                final String IP = ip.getText().toString();
                 Thread t = new Thread(){
                     @Override
                     public void run(){
                         try {
-                            Socket s  = new Socket("192.168.100.8",8080);
+                            Socket s  = new Socket(IP,8080);
                             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
                             DataInputStream dis = new DataInputStream(s.getInputStream());
                             //String pic = getStringFromBitmap(captured);

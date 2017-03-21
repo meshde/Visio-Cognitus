@@ -3,8 +3,11 @@
 import socket as s
 from helper import manipulate
 import random
+import sys
+
+ip = sys.argv[1]
 server = s.socket(s.AF_INET,s.SOCK_STREAM)
-server.bind(("192.168.100.8",8080))
+server.bind((ip,8080))
 server.listen(10)
 client,addr = server.accept()
 print "Connected to "+ str(addr)
