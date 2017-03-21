@@ -29,4 +29,8 @@ with open('file{}.png'.format(r),'wb') as f:
 
 manipulate(r)
 
+with open('result{}.png'.format(r),'r') as f:
+	data = f.read()
+
+client.send(data)
 

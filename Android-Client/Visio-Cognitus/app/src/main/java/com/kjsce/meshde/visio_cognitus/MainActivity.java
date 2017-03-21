@@ -3,7 +3,10 @@ package com.kjsce.meshde.visio_cognitus;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -25,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAMERA_REQ = 8080;
     ImageView imview;
     Bitmap captured;
+    Bitmap newpic;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             Socket s  = new Socket("192.168.100.8",8080);
                             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+                            DataInputStream dis = new DataInputStream(s.getInputStream());
                             //String pic = getStringFromBitmap(captured);
                             //dos.writeUTF(Integer.toString(pic.length()));
                             byte[] pic = getByteArrayFromBitmap(captured);
@@ -51,7 +57,17 @@ public class MainActivity extends AppCompatActivity {
                             dos.flush();
                             dos.write(pic,0,pic.length);
                             dos.flush();
+                            //int x = dis.read(res);
+                            /*for(int i=0;i<res.length;i++){
+                                System.out.println(res[i]);
+                            }*/
+
+                            //System.out.println(x);
+                            byte[] res = getPicture(dis);
+                            newpic = getBitmapFromByteArray(res);
+                            System.out.println(newpic.getByteCount());
                             s.close();
+                            handler.sendEmptyMessage(0);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -72,6 +88,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private Handler handler = new Handler(){
+      public void handleMessage(Message m){
+          super.handleMessage(m);
+          System.out.println("Here now");
+          imview.setImageBitmap(newpic);
+      }
+    };
+
     @Override
     protected void onActivityResult(int req,int res,Intent data){
         if(req == CAMERA_REQ && res == Activity.RESULT_OK){
@@ -93,6 +118,26 @@ public class MainActivity extends AppCompatActivity {
         img.compress(Bitmap.CompressFormat.PNG,100,baos);
         byte[] b = baos.toByteArray();
         return b;
+    }
+
+    protected Bitmap getBitmapFromByteArray(byte[] res){
+        Bitmap bmp = BitmapFactory.decodeByteArray(res, 0, res.length);
+        return bmp;
+    }
+
+    public byte[] getPicture(DataInputStream in) {
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] data = new byte[1024];
+            int length = 0;
+            while ((length = in.read(data))!=-1) {
+                out.write(data,0,length);
+            }
+            return out.toByteArray();
+        } catch(IOException ioe) {
+            //handle it
+        }
+        return null;
     }
 
     @Override
